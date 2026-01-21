@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_psychology_patient_tree" model="ir.ui.view">
+            <field name="name">psychology.patient.tree</field>
+            <field name="model">psychology.patient</field>
+            <field name="arch" type="xml">
+                <tree string="Pacientes">
+                    <field name="patient_code"/>
+                    <field name="name"/>
+                    <field name="phone"/> 
+                    <field name="dni"/>
+                    <field name="birth_date"/>
+                    <field name="age"/>
+                    <field name="email"/>
+                    <field name="has_social_security" class="col_centered"/>
+                    <field name="social_security_name"/>
+                    <field name="is_active" class="col_centered"/>
+                    <field name="psychologist_user_id" groups="psychology_clinic.group_administrative,psychology_clinic.group_manager"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_psychology_patient_kanban" model="ir.ui.view">
+            <field name="name">psychology.patient.kanban</field>
+            <field name="model">psychology.patient</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_small_column">
+                    <field name="partner_id"/>
+                    <field name="patient_code"/>
+                    <field name="diagnosis"/>
+                    <field name="diagnosis_color"/>
+                    <field name="phone"/>
+                    <field name="age"/>
+                    <field name="email"/>
+                    <field name="is_active"/>
+                    <field name="has_social_security"/>
+                    <field name="social_security_name"/>
+                    <field name="psychologist_user_id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <t t-if="record.is_active.raw_value">
+                                <div t-attf-class="oe_kanban_card border-success oe_kanban_global_click"
+                                        t-att-record="record">
+                                    <div class="oe_kanban_details">
+                                        <strong><field name="name"/></strong>
+                                        <div>📞 <field name="phone"/></div>
+                                        <div>🎂 <field name="age"/> años</div>
+
+                                        <div t-if="record.email.raw_value">
+                                            ✉️ <field name="email"/>
+                                        </div>
+                                
+                                        <div t-if="record.has_social_security.raw_value">
+                                            🏥 <field name="social_security_name"/>
+                                        </div>
+                                
+                                        <div t-if="record.diagnosis.raw_value">
+                                            🧠 <span t-att-class="record.diagnosis_color.raw_value">
+                                            <field name="diagnosis"/>
+                                            </span>
+                                        </div>
+                                        <div t-if="record.psychologist_user_id.raw_value" groups="psychology_clinic.group_administrative,psychology_clinic.group_manager">
+                                            👤 <span t-att-class="record.psychologist_user_id.raw_value">
+                                                <field name="psychologist_user_id"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div t-attf-class="oe_kanban_card border-warning text-secondary oe_kanban_global_click"
+                                        t-att-record="record">
+                                    <div class="oe_kanban_details">
+                                        <strong><field name="name"/></strong>
+                                        <div>📞 <field name="phone"/></div>
+                                        <div>🎂 <field name="age"/> años</div>
+
+                                        <div t-if="record.email.raw_value">
+                                            ✉️ <field name="email"/>
+                                        </div>
+                                
+                                        <div t-if="record.has_social_security.raw_value">
+                                            🏥 <field name="social_security_name"/>
+                                        </div>
+                                
+                                        <div t-if="record.diagnosis.raw_value">
+                                            🧠 <span t-att-class="record.diagnosis_color.raw_value">
+                                            <field name="diagnosis"/>
+                                            </span>
+                                        </div>
+                                        <div t-if="record.psychologist_user_id.raw_value" groups="psychology_clinic.group_administrative,psychology_clinic.group_manager">
+                                            👤 <span t-att-class="record.psychologist_user_id.raw_value">
+                                                <field name="psychologist_user_id"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="view_psychology_patient_form" model="ir.ui.view">
+            <field name="name">psychology.patient.form</field>
+            <field name="model">psychology.patient</field>
+            <field name="arch" type="xml">
+                <form string="Paciente">
+                    <header>
+                        <button name="%(action_psychology_session)d"
+                                type="action"
+                                string="Crear Sesión"
+                                context="{'default_patient_id': active_id}"
+                                class="btn-primary"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <!-- <field name="patient_code"/> -->
+                                <field name="partner_id" domain="[('is_company', '=', False)]"/> 
+                                <field name="name" invisible="1"/> 
+                                <field name="dni"/>
+                                <field name="birth_date"/>
+                                <field name="age"/>
+                                <field name="phone"/>
+                                <field name="email"/>
+                                <field name="gender"/>
+                                <field name="occupation"/>
+                                <field name="marital_status"/>
+                            </group>
+                            <group>
+                                <field name="psychologist_user_id" groups="psychology_clinic.group_manager"/>
+                                <field name="has_social_security" widget="toggle_button"/>
+                                <field name="social_security_name"
+                                    invisible="not has_social_security"
+                                    required="has_social_security"/>
+                                <field name="social_security_number"
+                                    invisible="not has_social_security"
+                                    required="has_social_security"/>
+                                <field name="emergency_contact_name"/>
+                                <field name="emergency_contact_phone"/>
+                                <field name="referral_source"/>
+                                <field name="is_active"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Información Clínica" name="clinical_info">
+                                <group groups="psychology_clinic.group_psychologist">
+                                    <field name="reason_for_consultation"/>
+                                    <field name="medical_history"/>
+                                    <field name="family_history"/>
+                                    <field name="current_medication"/>
+                                    <field name="diagnosis"/>
+                                </group>
+                            </page>
+                            <page string="Sesiones" name="sessions">
+                                <field name="session_ids">
+                                    <tree editable="bottom">
+                                        <field name="session_date"/>
+                                        <field name="session_type"/>
+                                        <field name="duration"/>
+                                        <field name="diagnosis"/>
+                                        <field name="calendar_event_id"/>
+                                    </tree>
+                                    <form>
+                                        <group>
+                                            <field name="session_date"/>
+                                            <field name="session_type"/>
+                                            <field name="duration"/>
+                                            <field name="diagnosis"/>
+                                            <field name="calendar_event_id"/>
+                                        </group>
+                                        <group>
+                                            <field name="session_notes" widget="html"/>
+                                            </group>
+                                    </form>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_psychology_patient_search" model="ir.ui.view">
+            <field name="name">psychology.patient.search</field>
+            <field name="model">psychology.patient</field>
+            <field name="arch" type="xml">
+            
+                <search string="Buscar Pacientes">
+                    <field name="name" string="Nombre del Paciente"/>
+                    <field name="patient_code"/>
+                    <field name="phone"/>
+                    <field name="email"/>
+                    <field name="social_security_name"/>
+
+                    <filter name="by_psychologist" string="Por Psicólogo" domain="[]" context="{'group_by': 'psychologist_user_id'}"/>
+                    <filter name="filter_active" string="Activos" domain="[('is_active', '=', True)]"/>
+                    <filter name="filter_inactive" string="Inactivos" domain="[('is_active', '=', False)]"/>
+                    <filter name="filter_has_social_security" string="Con Obra Social" domain="[('has_social_security', '=', True)]"/>
+                    <filter name="filter_no_social_security" string="Sin Obra Social" domain="[('has_social_security', '=', False)]"/>
+
+                    <separator/>
+
+                    <group expand="0" string="Agrupar Por">
+                        <filter name="group_by_is_active" string="Estado Activo" context="{'group_by': 'is_active'}"/>
+                        <filter name="group_by_has_social_security" string="Obra Social" context="{'group_by': 'has_social_security'}"/>
+                    </group>
+                </search>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

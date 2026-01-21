@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_psychology_session_tree" model="ir.ui.view">
+            <field name="name">psychology.session.tree</field>
+            <field name="model">psychology.session</field>
+            <field name="arch" type="xml">
+                <tree string="Sesiones">
+                    <field name="patient_id"/>
+                    <field name="session_type"/>
+                    <field name="session_date" widget="datetime" options="{'format': 'dd/MM/yyyy HH:mm'}"/>
+                    <field name="psychologist_id" groups="psychology_clinic.group_administrative,psychology_clinic.group_manager"/>
+                    <field name="diagnosis"/>
+                    <field name="calendar_event_id"/>
+                    <field name="duration"/>
+                    <field name="amount_charged"/> 
+                    <field name="payment_method"/> 
+                    <field name="payment_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_psychology_session_form" model="ir.ui.view">
+            <field name="name">psychology.session.form</field>
+            <field name="model">psychology.session</field>
+            <field name="arch" type="xml">
+                <form string="Sesión de Terapia">
+                    <header>
+                        <button name="action_open_session"
+                                type="object"
+                                string="Guardar sesión"
+                                class="btn-primary"/>
+                        <button string="Descartar"
+                                class="btn-secondary"
+                                special="cancel"/>
+                    </header>
+
+                    <sheet>
+                        <group>
+                            <group string="Datos de la Sesión">
+                                <field name="patient_id"/>
+                                <field name="psychologist_id" required="1"/>
+                                <field name="session_date" widget="datetime" options="{'format': 'dd/MM/yyyy HH:mm'}"/>
+                                <field name="duration"/>
+                                <field name="session_end"/> 
+                                <field name="session_type"/>
+                                <field name="diagnosis" groups="psychology_clinic.group_psychologist"/>
+                                <field name="calendar_event_id"/>
+                            </group>
+
+                            <group string="Configuración">
+                                <field name="is_recurrent" string="Repetir Sesión"/>
+                                <field name="recurrency_end"
+                                    invisible="not is_recurrent"
+                                    required="is_recurrent"/>
+                                    <field name="send_email_notifications"/>
+                            </group>
+
+                            <group string="Registro de Cobro" groups="psychology_clinic.group_psychologist">  
+                                <field name="payment_method"/> 
+                                <field name="amount_charged" 
+                                        readonly="0" 
+                                        modifiers="{'invisible': [('payment_method','=','obra_social')], 
+                                                    'required': [('payment_method','!=','obra_social')]}"/>
+                                <field name="payment_id" readonly="1"/> 
+                                <button name="action_open_payment_confirm_wizard"
+                                        type="object"
+                                        string="Actualizar cobro"
+                                        class="btn btn-outline-warning"
+                                        invisible="not payment_id or payment_method in ('adeudada','obra_social')"/>
+                            </group>
+                            
+                        </group>
+                        <notebook>
+                            <page string="Apuntes y Planificación" name="session_notes_page" groups="psychology_clinic.group_psychologist">
+                                <group>
+                                    <field name="session_notes" widget="html"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_psychology_session_search" model="ir.ui.view">
+            <field name="name">psychology.session.search</field>
+            <field name="model">psychology.session</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Sesiones">
+                    <field name="patient_id" string="Paciente"/>
+                    <field name="session_date" widget="datetime" options="{'format': 'dd/MM/yyyy HH:mm'}" string="Fecha de Sesión"/> 
+                    <field name="session_type" string="Tipo de Sesión"/>
+                    <field name="diagnosis"/> 
+                    
+                    <filter string="Pacientes activos"
+                    domain="[('is_patient_active', '=', True)]"
+                    name="filter_active"
+                    context="{'default_search_filter_active': True}"/>            
+                    
+                    <separator/> 
+                    
+                    <group expand="0" string="Agrupar Por"> 
+                        <filter name="group_by_patient" string="Paciente" context="{'group_by': 'patient_id'}"/>
+                        <filter name="group_by_session_type" string="Tipo de Sesión" context="{'group_by': 'session_type'}"/>
+                        <filter name="group_by_month" string="Fecha de Sesión" context="{'group_by': 'session_date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>

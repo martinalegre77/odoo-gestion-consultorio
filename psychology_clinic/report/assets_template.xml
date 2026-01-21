@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="report_clinical_history_layout" inherit_id="web.external_layout_standard">
+            <xpath expr="//div[@class='article']" position="before">
+            <style>
+                @page {
+                margin: 20mm 15mm 10mm 15mm;
+        
+                @bottom-center {
+                    content: "Página " counter(page) " / " counter(pages);
+                    font-size: 11pt;
+                    color: #333;
+                }
+        
+                @bottom-left {
+                    content: "Clínica Psicológica Concordia";
+                    font-size: 10pt;
+                    color: #555;
+                }
+        
+                @bottom-right {
+                    content: "Emitido el: " counter(page);
+                    font-size: 10pt;
+                    color: #555;
+                }
+                }
+            </style>
+            </xpath>
+        </template>
+    </data>
+</odoo>

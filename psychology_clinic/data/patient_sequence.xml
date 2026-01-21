@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_psychology_patient_code" model="ir.sequence">
+            <field name="name">Código de Paciente</field>
+            <field name="code">psychology.patient.code</field>
+            <field name="prefix">PAC</field> <field name="padding">4</field>    <field name="company_id" eval="False"/> </record>
+    </data>
+</odoo>

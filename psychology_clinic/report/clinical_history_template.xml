@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="report_clinical_history" t-name="psychology_clinic.report_clinical_history">
+            <t t-call="web.html_container">
+                <!-- Recorremos los docs que envía el action del report -->
+                <t t-foreach="docs" t-as="doc">
+                    <!-- Hacemos disponible 'o' y 'company' para el layout estándar -->
+                    <t t-set="o" t-value="doc"/>
+                    <t t-set="company" t-value="doc.company_id or env.company"/>
+                    <!-- Llamamos al layout externo estándar -->
+                    <t t-call="web.internal_layout">
+                        <!-- Configuracion general -->
+                        <div class="page" style="margin: 0; 
+                                                font-family: 'DejaVu Sans', sans-serif; 
+                                                font-size:12pt; 
+                                                color:#000;
+                                                min-height:27cm;
+                                                ">
+                            
+                        <!-- Header Simulado-->
+                            <div class="row align-items-center border-bottom pb-2 mb-5" style="max-height: 3cm; overflow: hidden;">
+                                
+                                <div class="col-7 text-end">
+                                    <!-- Logo de la empresa -->
+                                    <img t-if="doc.company_id and doc.company_id.logo"
+                                        t-att-src="image_data_uri(doc.company_id.logo)"
+                                        style="max-height:2.5cm; height:auto; width:auto; display:block; margin-left:auto; margin-right:0;"/>
+                                
+                                    <!-- Logo del psicólogo si no hay logo de empresa -->
+                                    <img t-elif="doc.author_id and doc.author_id.partner_id and doc.author_id.partner_id.professional_logo"
+                                        t-att-src="image_data_uri(doc.author_id.partner_id.professional_logo)"
+                                        style="max-height:2.5cm; height:auto; width:auto; display:block; margin-left:auto; margin-right:0;"/>
+                                </div>
+                                
+                                <div class="col-5 text-start small">
+
+                                    <t t-if="doc.psychologist_user_id and doc.psychologist_user_id.partner_id">
+                                        <b><span t-field="doc.psychologist_user_id.partner_id.name"/></b><br/>
+                                        <t t-if="doc.psychologist_user_id.partner_id.professional_license_type">
+                                            <span t-field="doc.psychologist_user_id.partner_id.professional_license_type"/>
+                                            <span> </span>
+                                            <span t-field="doc.psychologist_user_id.partner_id.professional_license_number"/>
+                                        </t>
+                                    </t>
+                                    
+                                    <t t-if="not doc.psychologist_user_id and doc.psychologist_user_id.partner_id">
+                                        <t t-if="company"><b><t t-esc="company.name"/></b></t>
+                                    </t>
+
+                                </div>
+                            </div>
+                            
+                            <t t-if="not doc.psychologist_user_id or not doc.psychologist_user_id.partner_id">
+                                <div style="height: 1.5cm;"/> </t>
+                            
+                            <!-- Cuerpo del Informe -->
+                            <!-- Título -->
+                            <h3 class="text-center mt-2 mb-4" style="font-size:14pt; font-family: Calibri, Arial, sans-serif;">
+                                <u>Historia Clínica del Paciente</u>
+                            </h3>
+                            
+                            <!-- Datos del Paciente en dos columnas -->
+                            <div class="report-data mb-2" style="display: flex; justify-content: space-between; gap: 40px; margin-bottom: 8px;">
+                                <!-- Columna 1: Información Personal -->
+                                <div style="flex: 1;">
+                                    <p class="mb-2"><strong>Paciente:</strong> <span t-field="doc.name"/></p>
+                                    <p class="mb-2"><strong>DNI:</strong> <span t-field="doc.dni"/></p>
+                                    <p class="mb-2"><strong>Fecha de Nacimiento:</strong> <span t-field="doc.birth_date"/></p>
+                                    <p class="mb-2"><strong>Edad:</strong> <span t-field="doc.age"/></p>
+                                    <p t-if="doc.social_security_name" class="mb-2"><strong>Obra Social:</strong> <span t-field="doc.social_security_name"/></p>
+                                    <p t-if="doc.social_security_number" class="mb-2"><strong>Nro Obra Social:</strong> <span t-field="doc.social_security_number"/></p>
+                                </div>
+                                <!-- Columna 2: Información Clínica -->
+                                <div style="flex: 1;">
+                                    <p class="mb-2"><strong>Diagnóstico:</strong> <span t-field="doc.diagnosis"/></p>
+                                    <p t-if="doc.reason_for_consultation" class="mb-2"><strong>Motivo de Consulta:</strong> <span t-field="doc.reason_for_consultation"/></p>
+                                    <p t-if="doc.medical_history" class="mb-2"><strong>Antecedentes Médicos:</strong> <span t-field="doc.medical_history"/></p>
+                                    <p t-if="doc.family_history" class="mb-2"><strong>Antecedentes Familiares:</strong> <span t-field="doc.family_history"/></p>
+                                    <p t-if="doc.current_medication" class="mb-2"><strong>Toma Medicación:</strong> <span t-field="doc.current_medication"/></p>
+                                </div>
+                            </div>
+
+                            <hr class="mt-3 mb-4"/>
+
+                            <!-- Historial de Sesiones -->
+                            <h3 class="text-center mt-2 mb-4" style="font-size:14pt; font-family: Calibri, Arial, sans-serif;">
+                                <u>Historial de Sesiones</u>
+                            </h3>
+
+                            <div class="report-body lh-base mb-6" style="text-align:justify;">
+                                <t t-foreach="doc.session_ids.filtered(lambda s: s.session_notes)" t-as="session">
+                                    <div class="note">
+                                        <p><strong><t t-esc="session.session_day.strftime('%d/%m/%Y')"/></strong></p>
+                                        <p><t t-raw="session.session_notes"/></p>
+                                    </div>
+                                </t>
+                                <t t-if="not doc.session_ids.filtered(lambda s: s.session_notes)">
+                                    <div>No hay contenido para la historia clínica.</div>
+                                </t>
+                            </div>
+
+                            <hr class="mt-5 mb-3"/>
+
+                            <t t-if="doc.clinical_event_ids">
+                                <h3 class="text-center mt-2 mb-4" style="font-size:14pt; font-family: Calibri, Arial, sans-serif;">
+                                    <u>Eventos Clínicos</u>
+                                </h3>
+                            
+                                <t t-foreach="doc.clinical_event_ids" t-as="event">
+                                    <p>
+                                        <strong>
+                                            <t t-esc="event.event_date.strftime('%d/%m/%Y')"/> - 
+                                            <t t-esc="event.get_event_type_label()"/>
+                                        </strong><br/>
+                                        <span><t t-esc="event.description"/></span><br/>
+                                        <span class="text-muted small">Registrado por: <t t-esc="event.changed_by.name"/></span>
+                                    </p>
+                                </t>
+                            </t>
+                            
+                            <!-- Espaciador entre cuerpo y firma -->
+                            <div style="height: 2cm;"></div>
+
+                            <!-- Firma del Profesional -->
+                            <div class="fin-informe text-end mt-5">
+                                <t t-set="profesional" t-value="doc.psychologist_user_id"/>
+                                <t t-set="partner" t-value="profesional.partner_id"/>
+
+                                <!-- Opción 1: Mostrar sello si existe -->
+                                <t t-if="partner and partner.professional_sello">
+                                    <img t-att-src="image_data_uri(partner.professional_sello)"
+                                        style="max-height:80px; max-width:160px; display:block; margin-left:auto;"/>
+                                </t>
+                                <!-- Opción 2: Mostrar nombre y matrícula si no hay sello -->
+                                <t t-if="partner and not partner.professional_sello">
+                                    <p class="mt-2 mb-0"><strong><t t-esc="partner.name"/></strong></p>
+                                    <t t-if="partner.professional_license_type and partner.professional_license_number">
+                                        <p class="text-center mb-0">
+                                            <t t-esc="partner.professional_license_type"/>
+                                            <span> </span>
+                                            <t t-esc="partner.professional_license_number"/>
+                                        </p>
+                                    </t>
+                                </t>
+                                <!-- Opción 3: Texto genérico si no hay datos -->
+                                <t t-if="not partner">
+                                    <p class="mt-4">Firma y sello del profesional</p>
+                                </t>
+                            </div>
+
+                        </div>
+
+                        <!-- Espaciador entre cuerpo y firma -->
+                        <div style="height: 1cm;"></div>
+
+                    </t> 
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
